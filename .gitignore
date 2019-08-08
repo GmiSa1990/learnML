@@ -5,6 +5,8 @@ __pycache__/
 
 # C extensions
 *.so
+# chris xue
+reference/
 
 # Distribution / packaging
 .Python
