@@ -4,11 +4,45 @@
 Decision Trees are fairly intuitive and their decisions are easy to interpret, such models are often called *white box models*, In contrast, random forests or neural networks are generally considered *black box models*
 ```
 
+One of the many qualities of decision tree is that they require very little data preparation. **In particular, they don't require feature scaling or centering at all**.
 
+## Datasets --- IRIS
+
+```python
+from sklearn.datasets import load_iris
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.tree import export_graphviz
+
+iris = load_iris()
+X = iris.data[:, 2:]
+y = iris.target
+tree_clf = DecisionTreeClassifier(max_depth=2)
+tree_clf.fit(X,y)
+export_graphviz(tree_clf, 
+                out_file="iris_tree.dot", 
+                feature_names=iris.feature_names[2:],
+                class_names=iris.target_names,
+                rounded=True,
+                filled=True)
+dot -Tpng iris_tree.dot -o iris_tree.png
+```
+
+![](../images/tree_iris.png)
+
+A node's *value* attribute tells you how many training instances of each class this node applies to.
+
+A node's *gini* attribute measures tis impurity.
+$$
+G_i = 1 - \sum_{k=1}^N{p_{i,k}^2}
+$$
+$p_{i,k}$ is the ratio of class $k$ instances among the training instances in the $i^{th}$ node.
+
+the method of decision tree classifier 
 
 ## CART
 
-*Classification And Regression Tree*
+- *Classification And Regression Tree*
+- scikit-learn uses the CART algorithm, which produces only *binary tree*
 
 **Cost function**:
 $$
@@ -44,7 +78,4 @@ A model is called a *nonparametric model*, not because it doesn't have any param
 
 2. 
 
-   
-
-# Ensemble Learning and Random Forests
 
