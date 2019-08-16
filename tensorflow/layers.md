@@ -96,3 +96,19 @@ this layer can only be used as the first layer in a model.
 ```python
 
 ```
+
+
+
+
+
+# Batch Normalization
+
+Normalize the activations of the previous layer at each batch, i.e. applies transformation that maintains the mean activation close to 0 while the activation standard deviation close to 1.
+
+
+
+```python
+from tensorflow.keras.layers import BatchNormalization
+BatchNormalization()
+```
+
