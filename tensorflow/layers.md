@@ -1,9 +1,4 @@
-
-## Word2vector
-
-1-of-N-encoding
-
-## Categorical cross entropy
+# RNN
 
 
 ## Long Short-Term Memory (LSTM)
@@ -11,6 +6,17 @@
   - Three gate: Input Gate, Forget Gate and Output Gate.
   - One input and One output here.
 ![lstm](./images/lstm.PNG)
+
+## LSTM cell
+
+LSTM is a **recurrent layer**, while LSTMCell is an object **used by LSTM layer** that contains the calculation logic for one step.
+A recurrent layer contains a cell object. The cell contains the core code for the calculations of each step, while the recurrent layer commands the cell and performs the actual recurrent calculations.
+
+Usually, people use LSTM layers in their code. Or they use RNN layers containing LSTMCell. Both things are almost the same. An LSTM layer is a RNN layer using an LSTMCell, as you can check out in the source code.
+
+**About the number of cells**: Alghout it seems, because of its name, that LSTMCell is a single cell, it is actually an object that manages all the units/cells as we may think. In the same code mentioned, you can see that the units argument is used when creating an instance of LSTMCell.
+
+## GRU
 
 
 
@@ -67,38 +73,6 @@ Using dropout regularization randomly disables some portion of neurons in a hidd
 
 
 ## Pooling Layer
-
-# RNN
-
-
-
-
-
-
-
-## LSTM
-
-
-
-## LSTMCell
-
-LSTM is a **recurrent layer**, while LSTMCell is an object **used by LSTM layer** that contains the calculation logic for one step.
-A recurrent layer contains a cell object. The cell contains the core code for the calculations of each step, while the recurrent layer commands the cell and performs the actual recurrent calculations.
-
-Usually, people use LSTM layers in their code. Or they use RNN layers containing LSTMCell. Both things are almost the same. An LSTM layer is a RNN layer using an LSTMCell, as you can check out in the source code.
-
-**About the number of cells**: Alghout it seems, because of its name, that LSTMCell is a single cell, it is actually an object that manages all the units/cells as we may think. In the same code mentioned, you can see that the units argument is used when creating an instance of LSTMCell.
-
-## GRU
-
-## Embedding
-this layer can only be used as the first layer in a model.
-```python
-
-```
-
-
-
 
 
 # Batch Normalization

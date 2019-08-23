@@ -71,32 +71,8 @@ K.Add()([x,y])
 
 
 
-## save/load model
-```python
-"""
-save a model to hdf5 file.
-model -> keras model instance to be saved.
-"""
-tf.keras.models.save_model(
-    model,
-    filepath,
-    overwrite=True,
-    include_optimizer=True
-)
-
-"""
-loads a model saved via save_model
-filepath -> h5py file
-compile -> If an optimizer was found as part of the saved model, the model is already compiled. Otherwise, the model is uncompiled and a warning will be displayed. When compile is set to False, the compilation is omitted without any warning.
-"""
-tf.keras.models.load_model(
-    filepath,
-    custom_objects=None,
-    compile=True
-)
-
-```
 ## model.compile
+
 ```python
 complie(
     optimizer,
@@ -130,7 +106,7 @@ Here, parameter
 
   
 
-- `metrics` should be l list of metrics to be evaluated by the model during training and testing phase.
+- `metrics` should be a list of metrics to be evaluated by the model during training and testing phase.
 
   ```python
   # no need to pass arguments to function getMetrics.
@@ -178,48 +154,130 @@ fit(
 
 Parameters here,
 
-- `x, y` input data and target data respectively.
+- `x, y` input data and target data respectively. if a `tf.data` dataset or dataset iterator is used, which returns a tuple of (inputs, targets), `y` should not be specified.
 
-# Metrics
+## model.evaluate
 
-### Usage of metrics
-A metric is a function that is used to judge the performance of your model. Metric functions are to be supplied in the metrics parameter when a model is compiled.
 
-A metric function is similar to a loss function, except that the results from evaluating a metric are not used when training the model. You may use any of the loss functions as a metric function.
 
-### Frequently used metrics
-- categorical accuracy
+## model.predict
+
+
+
+## save/load model
+
+```python
+"""
+save a model to hdf5 file.
+model -> keras model instance to be saved.
+"""
+tf.keras.models.save_model(
+    model,
+    filepath,
+    overwrite=True,
+    include_optimizer=True
+)
+
+"""
+loads a model saved via save_model
+filepath -> h5py file
+compile -> If an optimizer was found as part of the saved model, the model is already compiled. Otherwise, the model is uncompiled and a warning will be displayed. When compile is set to False, the compilation is omitted without any warning.
+"""
+tf.keras.models.load_model(
+    filepath,
+    custom_objects=None,
+    compile=True
+)
+
+```
+
+
 
 
 # Loss function
 
 ## Built-in function
 
+```python
+# Aliases. 
+# Defined in Keras.
+mse = MSE = mean_squared_error
+mae = MAE = mean_absolute_error
+mape = MAPE = mean_absolute_percentage_error
+msle = MSLE = mean_squared_logarithmic_error
+kld = KLD = kullback_leibler_divergence
+cosine = cosine_proximity
 
+from tensorflow.keras import backend as K
+def mean_squared_error(y_true, y_pred):
+    return K.mean(K.square(y_pred - y_true), axis=-1)
+def mean_abs_error(y_true, y_pred):
+    return K.mean(K.abs(y_pred - y_true), axis=-1)
+def hinge(y_true, y_pred):
+    return K.mean(K.maximum(1. - y_true * y_pred, 0.), axis=-1)
+def categorical_crossentropy(y_true, y_pred):
+    return K.categorical_crossentropy(y_true, y_pred)
 
-## Customized function
+from tensorflow import keras as K
 
+# target: tensor with the same shape as output
+# from_logit: whether output is expected to be a logits tensor. 
+# By default, output encodes a probability distribution.
+K.backend.binary_crossentropy(target,
+                             output,
+                             from_logit=False)
 
+K.backend.categorical_crossentropy(target, output, from_logit=False, axis=-1)
+```
+
++ [ ] The difference between them ?
+
+  `binary_crossentropy` function (call function `tf.nn.sigmoid_cross_entropy_with_logits` inside it) is for discrete classification tasks in which classes **are not mutually exclusive**. For instance, one could perform **multilabel classification** where a picture can contain both an elephant and a dog at the same time.
+
+  `categorical_crossentropy` function (call function `tf.nn.softmax_cross_entropy_with_logits` inside it) is for discrete classification tasks in which the classes **are mutually exclusive** (each entry is in exactly one class). For example, each CIFAR-10 image is labeled with one and **only one label**: an image can be a dog or a truck, but not both.
+
+## Customized function	
 
 ```python
 from tensorflow.keras import backend as K
 # most of functions in K are for element-wise operation.
-
-K.binary_crossentropy(target, output)
-
+def my_crossentropy(y_true, y_pred):
+    return K.mean(2*K.abs(y_true-0.5) * K.binary_crossentropy(y_pred, y_true), axis=-1)
 ```
 
+# Metrics
 
+## Usage of metrics
+
+A metric is a function that is used to judge the performance of your model. Metric functions are to be supplied in the metrics parameter when a model is compiled.
+
+A metric function is similar to a loss function, except that the results from evaluating a metric are not used when training the model. You may use any of the loss functions as a metric function.
+
+## Frequently used metrics
+
+```python
+def categorical_accuracy(y_true, y_pred):
+    return K.cast(K.equal(K.argmax(y_true, axis=-1),
+                         K.argmax(y_pred, axis=-1)), K.floatx())
+```
 
 # Optimizer
 
-- Adam
+```python
+# all classes of optimizer in keras
+all_classes = {
+    'sgd': SGD,
+    'rmsprop': RMSprop,
+    'adagrad': Adagrad,
+    'adadelta': Adadelta,
+    'adam': Adam,
+    'adamax': Adamax,
+    'nadam': Nadam,
+    'tfoptimizer': TFOptimizer,
+}
+```
 
-- SGD
-
-- RMSprop
-
-  usually used for RNN model training.
+Optimizers defined in `Keras` are classes and each of class inherits from base class `Optimizer`, 
 
 
 # Callbacks
@@ -228,3 +286,33 @@ K.binary_crossentropy(target, output)
   - on_epoch_begin and on_epoch_end expect two positional arguments: epoch, logs
   - on_batch_begin and on_batch_end expect two positional arguments: batch, logs
   - on_train_begin and on_train_end expect one positional argument: logs
+
+
+
+# Regularizer
+
+```python
+# defined in regularizers.py file.
+class L1L2(Regularizer):
+    ...
+    def __call__(self, x):
+        regularization = 0.
+        if self.l1:
+            regularization += self.l1 * K.sum(K.abs(x))
+        if self.l2:
+            regularization += self.l2 * K.sum(K.square(x))
+        return regularization
+    ...
+
+def l1(l=0.01):
+    return L1L2(l1=l)
+def l1_l2(l1=0.01,l2=0.02):
+    return L1L2(l1=l1,l2=l2)
+```
+
+
+
+
+
+
+
