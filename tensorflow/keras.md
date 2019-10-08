@@ -166,6 +166,13 @@ Parameters here,
 
 ## save/load model
 
+Saving model in this way includes everything we need to know about the model, including:
+
+- model weights
+- model architecture
+- model compilation details (loss and metrics)
+- model optimizer state
+
 ```python
 """
 save a model to hdf5 file.
@@ -177,9 +184,13 @@ tf.keras.models.save_model(
     overwrite=True,
     include_optimizer=True
 )
-
+# or
+model.save(
+	filepath,
+	overwrite=True,
+	include_optimizer=True)
 """
-loads a model saved via save_model
+loads a model saved via save_model or save method of Model class.
 filepath -> h5py file
 compile -> If an optimizer was found as part of the saved model, the model is already compiled. Otherwise, the model is uncompiled and a warning will be displayed. When compile is set to False, the compilation is omitted without any warning.
 """
@@ -191,8 +202,24 @@ tf.keras.models.load_model(
 
 ```
 
+`Keras` provides the ability to describe any model using JSON format with a `to_json()` function. This can be saved to file and later loaded via the `model_from_json()` function that will create  a new model from the JSON specification. The weights are saved directly from the model using the `save_weights()` function and later loaded using the symmetrical `load_weights()` function.
 
+```python
+model = Model(inputs=inputs, outputs=outputs)
+model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+model.fit()
+model_json = model.to_json()
+with open("model.json","w") as json_file:
+    json_file.write(model_json)
+model.save_weights("model.h5")
 
+# load json and create model
+json_file = open("model.json","r")
+loaded_model_json = json_file.read()
+loaded_model = model_from_json(loaded_model_json)
+loaded_model.load_weights("model.h5")
+loaded_model.compile(loss='binary_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
+```
 
 # Loss function
 
@@ -244,6 +271,12 @@ from tensorflow.keras import backend as K
 def my_crossentropy(y_true, y_pred):
     return K.mean(2*K.abs(y_true-0.5) * K.binary_crossentropy(y_pred, y_true), axis=-1)
 ```
+
++ [ ] [Hinge loss](<https://en.wikipedia.org/wiki/Hinge_loss>)
+
+  the hinge loss is used for 'maximum margin' classification, most notably for SVM.
+
+  $l(y) = max(0, 1-t*y)$
 
 # Metrics
 

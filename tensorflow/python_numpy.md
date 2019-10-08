@@ -39,3 +39,22 @@ c = np.reshape(b, (2,5))
 
 
 ```
+
+## np.fft
+
+`rfft` function computes the one-dimensional discrete Fourier Transform for real input, of which `irfft` function is inverse.
+
+**Note**: when the DFT is computed for purely real input, the output is *Hermitian-symmetric*, i.e. the negative frequency terms are just the complex conjugates of the corresponding positive-frequency terms, and the negative-frequency terms are therefore redundant. **This function does not compute the negative frequency terms, and the length of the transformed axis of the output is therefore `n//2 + 1`.**
+
+When `A = rfft(a)` and fs is the sampling frequency, `A[0]` contains the zero-frequency term 0*fs, which is real due to Hermitian symmetry. If *n* is even, `A[-1]` contains the term representing both positive and negative Nyquist frequency (+fs/2 and -fs/2), and must also be purely real. If *n* is odd, there is no term at fs/2; `A[-1]` contains the largest positive frequency (fs/2*(n-1)/n), and is complex in the general case.
+
+```python
+# a: array like
+# n: number of points to do FFT
+np.fft.rfft(a, n=None)
+
+# a: array like
+# n: lenght of the output 
+np.fft.irfft(a, n=None)
+```
+

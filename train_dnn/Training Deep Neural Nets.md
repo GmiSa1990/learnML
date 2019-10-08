@@ -41,7 +41,29 @@ The hyperparameter alpha defines how much the function 'leaks'.
 
 ### Batch Normalization
 
+feature scaling
 
+![](../images/feature_scaling.PNG)
+
+for each feature: compute the mean value $\mu$ and standard deviation value $\sigma$.
+
+$x_{new} = \frac{x - \mu}{\sigma}$
+
+after scaling, the mean value and standard deviation value for one feature over all the dataset will be 0 and 1. In general, gradient descent converges much faster with feature scaling than without it.
+
+Internal covariate shift
+
+batch normalization cannot be applied on small batch
+
+![](../images/batch_normalization_1.PNG)
+
+![](../images/batch_normalization_2.PNG)
+
+Benefit
+
+
+
+how to do backpropogation?
 
 ### Gradient Clipping
 
