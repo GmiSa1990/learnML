@@ -1,18 +1,4 @@
-- [Model](#model)
-  - [model creation](#model-creation)
-    - [Model class](#model-class)
-    - [Sequential class](#sequential-class)
-  - [save/load model](#saveload-model)
-  - [compile](#compile)
-  - [fit](#fit)
-- [Components](#components)
-  - [Metrics](#metrics)
-    - [Usage of metrics](#usage-of-metrics)
-    - [Frequently used metrics](#frequently-used-metrics)
-  - [Loss function](#loss-function)
-  - [Optimizer](#optimizer)
-  - [Callbacks](#callbacks)
-
+[toc]
 
 # Model
 
@@ -314,11 +300,34 @@ Optimizers defined in `Keras` are classes and each of class inherits from base c
 
 
 # Callbacks
-- LambdaCallback
-  For creating simple, custom callbacks on-the-fly.This callback is constructed with anonymous functions that will be called at the appropriate time. Note that the callbacks expects positional arguments, as:
-  - on_epoch_begin and on_epoch_end expect two positional arguments: epoch, logs
-  - on_batch_begin and on_batch_end expect two positional arguments: batch, logs
-  - on_train_begin and on_train_end expect one positional argument: logs
+## Lambda Callback
+For creating simple, custom callbacks on-the-fly. This callback is constructed with anonymous functions that will be called at the appropriate time. Note that the callbacks expects positional arguments, as:
+
+- on_epoch_begin and on_epoch_end expect two positional arguments: epoch, logs
+- on_batch_begin and on_batch_end expect two positional arguments: batch, logs
+- on_train_begin and on_train_end expect one positional argument: logs
+
+## Early Stopping
+
+```python
+from tensorflow.keras import callbacks
+callbacks.EarlyStopping(monitor='val_loss',
+                       min_delta=0,
+                       patience=20,
+                       mode='min')
+```
+
+Interrupt training when its performance on the validation set starts dropping.
+
+As the epochs go by, the algorithm learns and its prediction error (RMSE) on the training set naturally goes down, and so does its prediction error on the validation set. However, after a while the validation error stops decreasing and actually starts to go back up. This indicates that the model has started to overfit the training data. With early stopping you just stop training as soon as the validation error reaches the minimum.
+
+![](../images/early_stopping.PNG)
+
+## Model Check Point
+
+Save the model after every epoch.
+
+## Tensor board
 
 
 

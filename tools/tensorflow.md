@@ -206,8 +206,8 @@ y = tf.cast(x, tf.int32)
 ### using matplotlib
 For intuitive visualization of results, we can generate some plots. Refer to [Matplotlib](#matplotlib).
 
-### tensorboard
-#### Steps to use tensorboard
+### TensorBoard
+#### Steps to use TensorBoard
 - define the names for placeholder, variables, biases and loss, ...
 ```python
 input1 = tf.placeholder(tf.float32, name='input1')
@@ -218,26 +218,29 @@ var1   = tf.Variable(name='var2', initial_value=[2], dtype=tf.float32)
 sess = tf.Session()
 writer = tf.summary.FileWriter("logs/",sess.graph)
 ```
-- go back to terminal and run the following command.
+- go back to terminal and launching TensorBoard.
 ```cmd
-tensorboard --logdir = "logs/"
+tensorboard --logdir=/path/to/log-directory
 ```
+​	If this `log-directory` contains subdirectories which contain serialized data from separate runs, then TensorBoard will visualize the data from all of those runs. In addition, `log_directory` points to the directory where the `FileWriter` serialized its data.
+
 - copy the web address displayed on your terminal to the web browser and then you can see the Tensorboard.(Chrome is recommended!)
 
 #### Contents to be displayed in Tensorboard
 - graph
 
 used to show the structure of neural network.
-![graph-tf](images/graph_run=.png)
+![graph-tf](../images/graph_run=.png)
+
 - histogram
 
-restore the run-time result of parameters( weights, biases) inside nueral layer.
+restore the run-time result of parameters( weights, biases) inside neural layer.
 ```python
     tf.summary.histogram('weights', weight)
 ```
 - scalar
 
-restore the tun-time result of loss function.
+restore the run-time result of loss function.
 ```python
     tf.summary.scalar('loss', loss)
     with tf.Session() as sess:
@@ -275,4 +278,4 @@ tf.nn.sparse_softmax_cross_entropy_with_logits(labels, logits)
 # Reference
 1. [tensorflow intro](https://docs.google.com/presentation/d/1zkmVGobdPfQgsjIw6gUqJsjB8wvv9uBdT7ZHdaCjZ7Q/edit#slide=id.g1d0ac6f6ba_0_0)
 2. [Movan python](https://morvanzhou.github.io/tutorials/machine-learning/tensorflow/4-1-tensorboard1/)
-3. 
+3. [TensorBoard: Visualizing Learning](https://www.tensorflow.org/tensorboard/r1/summaries)
