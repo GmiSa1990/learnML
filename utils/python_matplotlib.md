@@ -16,11 +16,26 @@ z = np.sin(x)
 fig, (ax1, ax2) = plt.subplots(1,2,sharex = True)
 ax1.plot(x,y)
 ax1.set_title('square(x)')
+ax1.set_xlabel('xlabel', fontsize=18,fontfamily = 'sans-serif',fontstyle='italic')
 ax2.scatter(x,z)
 plt.ion()  # Turn the interactive mode on. allow code to continue running after plt.show()
 plt.show()  # show the figure
 plt.pause(2) # pause for 2 seconds.
 plt.clf()  # clear the figure
+```
+
+```python
+# plot two lines within one axe.
+import numpy as np
+x = np.linspace(0,2*np.pi,60)
+y1, y2 = np.sin(x), np.cos(x)
+_, ax = plt.subplots()
+ax.plot(x, y1, label='sin(x)')
+ax.plot(x, y2, label='cos(x)')
+ax.set_xlabel('x')
+ax.set_ylabel('y')
+ax.legend()
+plt.show()
 ```
 
 + figure

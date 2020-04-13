@@ -1,4 +1,4 @@
-[toc]
+[TOC]
 
 # Model
 
@@ -13,16 +13,6 @@ output = tf.keras.Dense(2, activation = tf.keras.activation.softmax)(x)
 # specify the input tensor and output tensor here. then a complete model is established.
 model = tf.keras.Model(inputs = input, outputs=output)
 ```
-`Input()` layer is used to instantiate a *Keras tensor*, which is a tensor object from the underlying backend (Tensorflow or Theano), as the input layer of the overall model.
-
-```python
-# create input layer for the input vector with 16 features, and batch size is not decided yet now.
-model_input = tf.keras.layers.Input(shape=(None,16), name='model_input')
-# create input layer for the model which contains RNN layer
-model_input = tf.keras.layers.Input(batch_shape=(batch_size, time_steps, feature_dims),
-                                    name='model_input')
-```
-
 Moreover, the parameter `inputs` and `outputs` of `Model` class can cover more than one `Input/output`. The following model is from github project *rnnoise*:
 
 ```python
@@ -54,8 +44,6 @@ y = tf.constant([[5,-1],[7,3]])
 K.add([x,y])
 K.Add()([x,y])
 ```
-
-
 
 ## model.compile
 
@@ -141,16 +129,21 @@ fit(
 Parameters here,
 
 - `x, y` input data and target data respectively. if a `tf.data` dataset or dataset iterator is used, which returns a tuple of (inputs, targets), `y` should not be specified.
+- `shuffle` Boolean (whether to shuffle the training data before each epoch). Has no effect when `steps_per_epoch` is not `None`.
 
 ## model.evaluate
 
+```python
+evaluate(X, y)
+```
 
+return the loss value and metrics values specified in `compile` procedure for the model in the test mode.
 
 ## model.predict
 
+when predicting, the input to feeded to model shall be preproceessed, such as dimension, normalization, like in training.
 
-
-## save/load model
+## model.save
 
 Saving model in this way includes everything we need to know about the model, including:
 
@@ -206,6 +199,14 @@ loaded_model = model_from_json(loaded_model_json)
 loaded_model.load_weights("model.h5")
 loaded_model.compile(loss='binary_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
 ```
+
+## model.reset_states
+
+```python
+model.reset_states()
+```
+
+
 
 # Loss function
 
@@ -264,6 +265,21 @@ def my_crossentropy(y_true, y_pred):
 
   $l(y) = max(0, 1-t*y)$
 
+- `sparse_softmax_cross_entropy_with_logits`  &  `softmax_cross_entropy_with_logits_v2`
+
+```python
+tf.nn.softmax_cross_entropy_with_logits_v2(labels, logits)
+# `labels`: shape: [batch_size, num_classes],
+#			each row of labels[i] must be a valid probability distribution.
+# `logits`: unscaled log probabilities.
+
+tf.nn.sparse_softmax_cross_entropy_with_logits(labels, logits)
+# `labels`: shape: [batch_size,], each element must be an index in [0, num_classes]
+# `logits`: unscaled log probabilities.
+```
+
+
+
 # Metrics
 
 ## Usage of metrics
@@ -317,7 +333,7 @@ callbacks.EarlyStopping(monitor='val_loss',
                        mode='min')
 ```
 
-Interrupt training when its performance on the validation set starts dropping.
+Interrupt training when **its performance on the validation set starts dropping**. Often, it's a good idea to use `val_loss` because it overfits much slower than training loss. This does however require that you add a `validation_split` in `model.fit`. `monitor` also can be set as `loss`, then the the `loss` will be computed on training set. 
 
 As the epochs go by, the algorithm learns and its prediction error (RMSE) on the training set naturally goes down, and so does its prediction error on the validation set. However, after a while the validation error stops decreasing and actually starts to go back up. This indicates that the model has started to overfit the training data. With early stopping you just stop training as soon as the validation error reaches the minimum.
 
@@ -325,11 +341,24 @@ As the epochs go by, the algorithm learns and its prediction error (RMSE) on the
 
 ## Model Check Point
 
+```python
+callbacks.ModelCheckpoint(filepath,
+                          monitor='val_loss',
+                          save_best_only=False,
+                          save_weights_only=False,
+                          mode='auto',
+                          period=1)
+```
+
+`save_best_only`: if `save_best_only=True`, the latest best model according to the quantity monitored will not be overwritten
+
+`save_weights_only`: if True, then only the model's weights will be saved (`model.save_weights(filepath)`), else the full model is saved (`model.save(filepath)`)
+
 Save the model after every epoch.
 
 ## Tensor board
 
-
+used for visualizing graph and scalars and so on.
 
 # Regularizer
 
@@ -344,15 +373,44 @@ class L1L2(Regularizer):
         if self.l2:
             regularization += self.l2 * K.sum(K.square(x))
         return regularization
-    ...
 
 def l1(l=0.01):
     return L1L2(l1=l)
+
+def l2(l=0.01):
+    return L1L2(l2=l)
+
 def l1_l2(l1=0.01,l2=0.02):
     return L1L2(l1=l1,l2=l2)
 ```
 
+If the value of parameter `l` is larger, then the regularization will be more powerful as larger value provide larger weight for regularization part in loss function.
 
+# Constraint
+
+```python
+# defined in constraints.py file
+import tensorflow.keras.backend as K
+class MaxNorm(Constraint):
+    def __init__(self, max_value=2, axis=0):
+        self.max_value = max_value
+        self.axis = axis
+    def __call__(self, w):
+        norms = K.sqrt(K.sum(K.square(w), axis=self.axis, keepdims=True))
+        desired = K.clip(norms, 0, self.max_value)
+        return w*(desired/(K.epsilon()+norms))
+
+class NonNeg(Constraint):
+    def __call__(self, w):
+        return w * K.cast(K.greater_equal(w,0),K.floatx())
+    
+max_norm = MaxNorm
+non_neg = NonNeg
+unit_norm = UnitNorm
+min_max_norm = MinMaxNorm
+```
+
+`Constraint` directly limit the value of weights by a specific rule. Unlike `Regularizer`, it is not added to loss function.
 
 
 

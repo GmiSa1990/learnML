@@ -254,28 +254,33 @@ restore the run-time result of loss function.
                 writer.add_summary(rs, i)
 
 ```
-## Loss Function
 
-- `sparse_softmax_cross_entropy_with_logits`  &  `softmax_cross_entropy_with_logits_v2`
+*Tensorboard*中可以通过字符`.*`来实现模糊匹配。
+
+## tensorflow.data
+
+[Reference web](https://www.tensorflow.org/api_docs/python/tf/data/TFRecordDataset#window)
 
 ```python
-tf.nn.softmax_cross_entropy_with_logits_v2(labels, logits)
-# `labels`: shape: [batch_size, num_classes],
-#			each row of labels[i] must be a valid probability distribution.
-# `logits`: unscaled log probabilities.
+from tensorflow.data import Dataset, TFRecordDataset
 
-tf.nn.sparse_softmax_cross_entropy_with_logits(labels, logits)
-# `labels`: shape: [batch_size,], each element must be an index in [0, num_classes]
-# `logits`: unscaled log probabilities.
+# to process records written in the TFRecord format, with the methods of class TFRecordDataset
+ds = TFRecordDataset(["file1.tfrecords", "file2.tfrecords"])
+# use method batch to combines consecutive elements of this dataset into batches.
+ds.batch(batch_size=16, drop_remainder=False)
+# use method window to combines input elements into a dataset of windows.
+ds.window(size=3, shift=1, stride=1, drop_remainder=True)
+dataset = tf.data.Dataset.range(7).window(2) 
+for window in dataset: 
+  print(list(window.as_numpy_iterator())) 
+# [0,1]
+# [2,3]
+# [4,5]
+# the element 6 is dropped as drop_remainder has been set to True.
 ```
 
-
-
-
-
-
-
 # Reference
+
 1. [tensorflow intro](https://docs.google.com/presentation/d/1zkmVGobdPfQgsjIw6gUqJsjB8wvv9uBdT7ZHdaCjZ7Q/edit#slide=id.g1d0ac6f6ba_0_0)
 2. [Movan python](https://morvanzhou.github.io/tutorials/machine-learning/tensorflow/4-1-tensorboard1/)
 3. [TensorBoard: Visualizing Learning](https://www.tensorflow.org/tensorboard/r1/summaries)

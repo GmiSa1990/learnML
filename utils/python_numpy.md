@@ -1,7 +1,9 @@
 
-# Numpy
+# Numpy and Scipy
 ```python
 import numpy as np
+import scipy as sp
+from scipy import (signal, fft)
 ```
 ## Basic Functions
 ```python
@@ -36,8 +38,6 @@ b.size
 
 # shape manipulation
 c = np.reshape(b, (2,5))
-
-
 ```
 
 ## np.fft
